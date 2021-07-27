@@ -1,0 +1,1 @@
+REGULARIZATION_TYPES = ('GSpatial',)
