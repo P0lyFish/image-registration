@@ -29,7 +29,7 @@ class Vimeo90kDataset(Dataset):
 
         random.shuffle(self.image_paths)
 
-        self.crop = A.augmentations.crops.transforms.RandomCrop(256, 256)
+        self.crop = A.augmentations.crops.transforms.CenterCrop(256, 256)
 
         self.spatial_transform = A.Compose(
             [
@@ -74,12 +74,15 @@ class Vimeo90kDataset(Dataset):
 
         target = cv2.imread(image_path)
         target = cv2.cvtColor(target, cv2.COLOR_BGR2RGB)
-        target = self.crop(image=target)['image']
 
         src_warped = self.color_transform(image=target)['image']
         src = self.spatial_transform(
             image=src_warped
         )['image']
+
+        src = self.crop(image=src)['image']
+        src_warped = self.crop(image=src_warped)['image']
+        target = self.crop(image=target)['image']
 
         src = self.to_tensor(image=src)['image']
         src_warped = self.to_tensor(image=src_warped)['image']

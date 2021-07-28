@@ -81,11 +81,12 @@ def parse_args():
     parser.add_argument('--num_epochs', type=int, default=100, help='Max Epochs')
     parser.add_argument('--num_workers', type=int, default=8, help='Number of workers')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
-    parser.add_argument('--loss_str', type=str, default='1*CharbonnierLoss+0.01*GSpatialReg', help='loss function configuration')
+    parser.add_argument('--loss_str', type=str, default='1*CharbonnierLoss+0.8*GSpatialReg', help='loss function configuration')
+    parser.add_argument('--img_log_freq', type=int, default=500, help='saving image frequency')
 
     # Optimization specifications
-    parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
-    parser.add_argument('--lr_decay', type=int, default=20, help='learning rate decay per N epochs')
+    parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
+    parser.add_argument('--lr_decay', type=int, default=10000, help='learning rate decay per N epochs')
     parser.add_argument('--decay_type', type=str, default='step', help='learning rate decay type')
     parser.add_argument('--gamma', type=float, default=0.5, help='learning rate decay factor for step decay')
     parser.add_argument('--optimizer', default='ADAMax', choices=('SGD', 'ADAM', 'RMSprop', 'ADAMax'), help='optimizer to use (SGD | ADAM | RMSprop | ADAMax)')

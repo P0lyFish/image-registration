@@ -33,6 +33,8 @@ class SupervisedTrainer:
 
         self.metric_funcs = define_metrics(args)
 
+        self.img_log_freq = args.img_log_freq
+
         if args.use_parallel:
             self.model = torch.nn.DataParallel(self.model)
 
@@ -63,32 +65,41 @@ class SupervisedTrainer:
             self.validation()
             self.save()
 
+    def get_lr(self):
+        for param_group in self.optimizer.param_groups:
+            return param_group['lr']
+
     def train_one_epoch(self):
         self.model.train()
 
+        self.logger.info(f'Running epoch {self.current_epoch}/{self.num_epochs}')
         progressBar = tqdm(
             enumerate(self.train_dataloader),
             total=len(self.train_dataloader),
-            desc=f'Running epoch {self.current_epoch}/{self.num_epochs}'
         )
 
         for batch_idx, data_point in progressBar:
+
             self.optimizer.zero_grad()
 
             out = self.model(data_point['input'])
             pred = out['pred']
             regs = out['regs']
             losses = self.loss_func(data_point['gt'].to(self.device), pred, regs)
+            total_loss = losses['totalLoss']
 
-            losses['totalLoss'].backward()
+            total_loss.backward()
             self.optimizer.step()
             self.scheduler.step()
             self.current_iter += 1
 
+            progressBar.set_description(f'lr: {self.get_lr():.4f}, loss: {total_loss.item():.4f}')
+
             self.log_losses(losses)
 
-        self.log_imgs({'pred': pred})
-        self.log_imgs(data_point)
+            if self.current_iter % self.img_log_freq == 0:
+                self.log_imgs({'pred': pred})
+                self.log_imgs(data_point)
 
     def log_losses(self, losses):
         for loss_type, loss in losses.items():

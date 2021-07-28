@@ -5,7 +5,7 @@ import torch.nn as nn
 class CharbonnierLoss(nn.Module):
     """Charbonnier Loss (L1)"""
 
-    def __init__(self, args, eps=1e-4):
+    def __init__(self, args, eps=1e-6):
         super(CharbonnierLoss, self).__init__()
         self.eps = eps
 
